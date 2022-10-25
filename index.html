@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="tours">
+      <div id="tour-details"></div>
+    </div>
+    <script>
+      const details = document.getElementById('tour-details');
+      let tours;
+
+      window.onload = () => {
+        const data = async () => {
+          const api = await fetch('http://localhost:8000/api/v1/tours');
+          const res = await api.json();
+          console.log(res.data);
+          tours = res.data;
+
+          tours?.map((tour) => {
+            let contents = `
+          <div>
+            <img src= ${tour.images[0]}/>
+            <h1>Tour Name: ${tour.name}</h1>
+            <p>Tour Price: ${tour.price}</p>
+            <p>Tour Rating: ${tour.ratingsAverage}</p>
+            <p>Tour Description: ${tour.description}</p>
+          </div>
+          `;
+            details.innerHTML = contents;
+          });
+        };
+        data();
+      };
+    </script>
+  </body>
+</html>
