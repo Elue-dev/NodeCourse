@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
@@ -17,6 +18,11 @@ const userSchema = new mongoose.Schema(
       validate: [validator.isEmail, 'Please provide a valid email address'],
     },
     photo: String,
+    role: {
+      type: String,
+      enum: ['user', 'guide', 'lead-guide', 'admin'],
+      default: 'user',
+    },
     password: {
       type: String,
       required: [true, 'Password is a required field'],
@@ -35,6 +41,8 @@ const userSchema = new mongoose.Schema(
       },
     },
     passwordChangedAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
   },
   {
     timestamps: true,
@@ -52,6 +60,15 @@ userSchema.pre('save', async function (next) {
 
   // delete confirm password
   this.passwordConfirm = undefined;
+  next();
+});
+
+// for the reset password
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  //remember we checked if the user has changed its password in the controller, so we minus 1second, because sometimes it happend that the token is created some seconds before the changed password timestamp has bee created, so it would put the passwordchangedaT  1 second in the past
+  this.passwordChangedAt = Date.now() - 1000;
   next();
 });
 
@@ -73,6 +90,23 @@ userSchema.methods.changedPasswordAfter = function (JWTTimeStamp) {
     return JWTTimeStamp < changedTimestamp;
   }
   return false;
+};
+
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  // console.log({ resetToken }, this.passwordResetToken);
+
+  //expires after 10 minutes
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  //return plain text token that we would send as an email (unencrypted). So we send the user the unencrypted one and we have the encrypted one in our database.
+  return resetToken;
 };
 
 const User = mongoose.model('User', userSchema);

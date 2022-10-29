@@ -1,6 +1,6 @@
 const express = require('express');
 const tourController = require('../controllers/tourController');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, restrictTo } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -25,6 +25,10 @@ router.route('/monthly-plan/:year').get(getMonthlyPlan);
 // param middleware, defined in tour controller
 router.route('/').get(protect, getAllTours).post(createTour);
 
-router.route('/:id').get(getSingleTour).patch(updateTour).delete(deleteTour);
+router
+  .route('/:id')
+  .get(getSingleTour)
+  .patch(updateTour)
+  .delete(protect, restrictTo('admin', 'lead-guide'), deleteTour);
 
 module.exports = router;
