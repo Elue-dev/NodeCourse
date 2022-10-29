@@ -11,26 +11,33 @@ const generateToken = (id) => {
   });
 };
 
-exports.signup = catchAsync(async (req, res, next) => {
-  const newUser = await User.create({
-    name: req.body.name,
-    role: req.body.role,
-    email: req.body.email,
-    password: req.body.password,
-    passwordConfirm: req.body.passwordConfirm,
-    passwordChangedAt: req.body.passwordChangedAt,
-  });
-
+const createAndSendToken = (user, statusCode, res) => {
   // recieves, payload(id), secret and options
-  const token = generateToken(newUser._id);
+  const token = generateToken(user._id);
 
-  res.status(201).json({
+  res.status(statusCode).json({
     status: 'success',
     token,
     data: {
-      user: newUser,
+      user: user,
     },
   });
+};
+
+exports.signup = catchAsync(async (req, res, next) => {
+  const { name, role, email, password, passwordConfirm, passwordChangedAt } =
+    req.body;
+
+  const newUser = await User.create({
+    name,
+    role,
+    email,
+    password,
+    passwordConfirm,
+    passwordChangedAt,
+  });
+
+  createAndSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -49,11 +56,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // 3) if everything is okay, send the token
-  const token = generateToken(user._id);
-  res.status(200).json({
-    status: 'success',
-    token,
-  });
+  createAndSendToken(user, 200, res);
 });
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
@@ -112,6 +115,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     return next(new AppError('Token is ivalid or has expired', 400));
   }
 
+  // 2) if token has not expired, and there is a user, the set new password
   //set whatever user sends as new password and confirm password
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
@@ -121,13 +125,26 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetExpires = undefined;
   await user.save(); //we wont disable validation cuz we need it eg for password confirm
 
-  // 2) if token has not expired, and there is a user, the set new password
   // 3) update changedPasswordAt property for the user
   // 4) log user in, send jwt to client
-  const token = generateToken(user._id);
 
-  res.status(200).json({
-    status: 'success',
-    token,
-  });
+  createAndSendToken(user, 200, res);
+});
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  // 1) get user. note: we didnt use findByIdAndUpdate because in update, the user password is not defined, so anything relating to password, don't use update
+  const user = await User.findById(req.user.id).select('+password');
+
+  // 2) check if current posted password is correct
+  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+    return next(new AppError('Your password is wrong..', 401));
+  }
+
+  // 3) if password is correct then update the password
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  await user.save();
+
+  // 4) log user in, send JWT
+  createAndSendToken(user, 200, res);
 });
