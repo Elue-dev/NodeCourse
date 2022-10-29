@@ -15,6 +15,20 @@ const createAndSendToken = (user, statusCode, res) => {
   // recieves, payload(id), secret and options
   const token = generateToken(user._id);
 
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    // secure: true, //only be sent to an encrypted connection, i.e when we using https
+    httpOnly: true, //ca only be modified in http i.e can't be accessed or modified by the browser
+  };
+
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  res.cookie('jwt', token, cookieOptions);
+
+  //remove password from the output - the one we did in the schema is to query for all users, here it comes from creating a new document
+  user.password = undefined;
+
   res.status(statusCode).json({
     status: 'success',
     token,

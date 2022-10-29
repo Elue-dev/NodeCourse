@@ -43,6 +43,11 @@ const userSchema = new mongoose.Schema(
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
+    active: {
+      type: Boolean,
+      default: true,
+      select: false,
+    },
   },
   {
     timestamps: true,
@@ -67,8 +72,15 @@ userSchema.pre('save', async function (next) {
 userSchema.pre('save', function (next) {
   if (!this.isModified('password') || this.isNew) return next();
 
-  //remember we checked if the user has changed its password in the controller, so we minus 1second, because sometimes it happend that the token is created some seconds before the changed password timestamp has bee created, so it would put the passwordchangedaT  1 second in the past
+  //remember we checked if the user has changed its password in the controller, so we minus 1second, because sometimes it happend that the token is created some seconds before the changed password timestamp has bee created, so it would put the passwordChangedaT  1 second in the past and that's not a problem
   this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
+//QUERY MIDDLEWARE -  so points to current query (usig this to return only users with active of true)
+userSchema.pre(/^find/, function (next) {
+  this.find({ active: { $ne: false } });
+
   next();
 });
 
