@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -9,10 +10,19 @@ const cors = require('cors');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
+const viewRouter = require('./routes/viewRoutes');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
+const reviewRouter = require('./routes/reviewRoutes');
 
 const app = express();
+
+app.set('view-engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
+// serving static files (creating routes for static files, eg index.html file in public folder)
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(cors());
 app.use(express.json({ limit: '10kb' })); // middleware: function to modify the incoming request data - we using express.json() to get the request body on the response object. (also called Body Parser)
 
@@ -37,8 +47,6 @@ app.use(
   })
 );
 
-app.use(express.static(`${__dirname}/public`)); // serving static files (creating routes for static files, eg index.html file in public folder)
-
 // middleware - applies to every single request, cuz we didn't specify any route
 //REMEMBER - the order matters
 
@@ -53,7 +61,7 @@ if (process.env.NODE_ENV === 'development') {
 
 //how many requests per IP would be allowed
 const limiter = rateLimit({
-  //the options below will allow 100 requests from same IP in 1hr
+  // the options below will allow 100 requests from same IP in 1hr
   max: 100,
   windowMs: 60 * 60 * 1000,
   message: 'Too many requests from this IP. Please try again in an hour.',
@@ -72,8 +80,12 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api/v1/tours', tourRouter); //tourRouter & userRouter = middleware
+//tourRouter & userRouter & reviewRouter = middleware
+app.use('/', viewRouter);
+app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 // handle any route that dosen't match
 app.all('*', (req, res, next) => {

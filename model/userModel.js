@@ -77,7 +77,7 @@ userSchema.pre('save', function (next) {
   next();
 });
 
-//QUERY MIDDLEWARE -  so points to current query (usig this to return only users with active of true)
+//QUERY MIDDLEWARE -  so points to current query (using this to return only users with active of true)
 userSchema.pre(/^find/, function (next) {
   this.find({ active: { $ne: false } });
 

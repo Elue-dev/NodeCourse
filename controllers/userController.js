@@ -2,6 +2,7 @@
 const User = require('../model/userModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
+const factory = require('./handlerFactory');
 
 const filteredObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -13,18 +14,15 @@ const filteredObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find();
+// we will use this in as a middleware in the /me route, to be able to get id
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id;
 
-  res.status(200).json({
-    status: 'success',
-    results: users.length,
-    data: users,
-  });
-});
+  next();
+};
 
 exports.updateMe = catchAsync(async (req, res, next) => {
-  // 1) create error if user tries to update password or if user posts  password data
+  // 1) create error if user tries to update password or if user posts password data
   if (req.body.password || req.body.passwordConfirm) {
     return next(
       new AppError(
@@ -34,7 +32,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     );
   }
 
-  // 2) filter because we want to exclude some fields that are not allowed to be updated
+  // 2) filter because we want to exclude some fields that are not allowed to be updated eg password
   const filteredBody = filteredObj(req.body, 'name', 'email');
 
   // 3) update user document.
@@ -61,20 +59,20 @@ exports.deleteMe = catchAsync(async (req, res) => {
   });
 });
 
-exports.getSingleUser = (req, res) => {
-  // const userID = req.params.id;
-  // const singleUser = users.find((user) => user._id === userID);
-  // if (!singleUser)
-  //   return res.status(400).json({
-  //     status: 'fail',
-  //     message: `Route not yet defined`,
-  //   });
-  // res.status(200).json({
-  //   status: 'success',
-  //   data: { singleUser },
-  // });
+exports.createUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not defined! Please use the /signup instead',
+  });
 };
 
-exports.createUser = (req, res) => {};
-exports.updateUser = (req, res) => {};
-exports.deleteUser = (req, res) => {};
+exports.getAllUsers = factory.getAll(User);
+
+exports.getUser = factory.getOne(User);
+
+exports.getSingleUser = factory.getOne(User);
+
+exports.deleteUser = factory.deleteOne(User);
+
+// Do not update users password with this, because with findByIdAndUpdate, all the safe middleware is not run
+exports.updateUser = factory.updateOne(User);

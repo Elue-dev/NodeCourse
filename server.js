@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const colors = require('colors');
 const dotenv = require('dotenv');
+const cors = require('cors');
 
 process.on('uncaughtException', (err) => {
   console.log(err.name, err.message);
@@ -11,8 +12,15 @@ process.on('uncaughtException', (err) => {
 dotenv.config({ path: './config.env' }); //to get access to environment variables
 const app = require('./app');
 
-app.use('/api/v1/tours', require('./routes/tourRoutes'));
-app.use('/api/v1/users', require('./routes/userRoutes'));
+app.use(
+  cors({
+    origin: 'http://localhost:5000',
+  })
+);
+
+// app.use('/api/v1/tours', require('./routes/tourRoutes'));
+// app.use('/api/v1/users', require('./routes/userRoutes'));
+// app.use('/api/v1/reviews', require('./routes/reviewRoutes'));
 
 // console.log('express environment = ', app.get('env'));
 // console.log('node environment = ', process.env);
@@ -41,7 +49,8 @@ const server = app.listen(PORT, () => {
 
 // handle unhandle rejections
 process.on('unhandledRejection', (err) => {
-  console.log(err.name, err.message);
+  console.log(err);
+  // console.log(err.name, err.message);
   console.log('UNHANDLED REJECTION ⛔️, Shutting down...');
   server.close(() => {
     process.exit(1); //0 = Success, 1 = Uncaught Exception

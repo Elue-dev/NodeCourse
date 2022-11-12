@@ -1,0 +1,18 @@
+doctype html
+html 
+    head
+        title Natours | #{tour} //- interpolation syntax
+        link(rel='stylesheet' href='css/style.css')
+        link(rel='shortcut icon' type='image/png' href='img/favicon.png')
+
+    body
+        h1= tour
+
+        //- buffered code
+        h2= user.toUpperCase() 
+        // h1 The Park Camper - comment WILL be outputed to html
+        //- h1 The Park Camper - comment will NOT be outputed to html
+
+        //- unnbuffered code
+        - const x = 9
+        h2= 2 * x

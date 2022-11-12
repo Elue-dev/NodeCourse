@@ -39,6 +39,7 @@ const createAndSendToken = (user, statusCode, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
+  // should passwordChangedAt show??
   const { name, role, email, password, passwordConfirm, passwordChangedAt } =
     req.body;
 
@@ -126,10 +127,10 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   });
 
   if (!user) {
-    return next(new AppError('Token is ivalid or has expired', 400));
+    return next(new AppError('Token is invalid or has expired', 400));
   }
 
-  // 2) if token has not expired, and there is a user, the set new password
+  // 2) if token has not expired, and there is a user, then set new password
   //set whatever user sends as new password and confirm password
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
