@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BeatLoader } from 'react-spinners';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
@@ -6,10 +6,11 @@ import { RiLockPasswordLine } from 'react-icons/ri';
 import { MdOutlineMail } from 'react-icons/md';
 import axios from 'axios';
 import './auth.scss';
-import { useDispatch, useSelector } from 'react-redux';
-import { getUser, SET_ACTIVE_USER } from '../../redux/authSlice';
+import { useDispatch } from 'react-redux';
+import { SET_ACTIVE_USER } from '../../redux/authSlice';
+import { showAlert } from '../../utils/Alert';
 
-export default function SignUp() {
+export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
@@ -20,7 +21,6 @@ export default function SignUp() {
   const emailRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const user = useSelector(getUser);
 
   useEffect(() => {
     emailRef.current.focus();
@@ -41,110 +41,76 @@ export default function SignUp() {
       setLoading(true);
       const response = await axios.post('api/v1/users/login', userData);
 
-      console.log(response);
-
       if (response?.data.status === 'success') {
         dispatch(SET_ACTIVE_USER(response?.data.data.user));
 
-        console.log(response.data.data.user);
         localStorage.setItem('token', JSON.stringify(response?.data.token));
-        setMessage('Login Successful!. Redirecting to Dashboard...');
+        showAlert(
+          'success',
+          `Logged in successfully, ${
+            response.data.data.user.name.split(' ')[1]
+          }!`
+        );
+        // setMessage('Login Successful!. Redirecting to Dashboard...');
         setTimeout(() => {
           navigate('/');
         }, 2000);
       }
       setLoading(false);
     } catch (error) {
-      console.log(error);
-      setError(error.response?.data.message);
+      showAlert('error', error.response?.data.message);
       setLoading(false);
     }
   };
 
-  // const verifyEmail = () => {
-  //   try {
-  //     console.log(user);
-  //     const response = axios.get(
-  //       `api/auth/send-verification-token/${user._id}`
-  //     );
-  //     console.log(response.data);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  const handlePasswordVisibility = () => {
-    setVisible(!visible);
-    if (passwordRef.current.type === 'password') {
-      passwordRef.current.setAttribute('type', 'text');
-    } else {
-      passwordRef.current.setAttribute('type', 'password');
-    }
-  };
-
   return (
-    <main>
-      <div className="auth">
-        <div className="auth__contents">
-          <h2>Log in</h2>
-          <form onSubmit={handleUserSignIn}>
-            {error && <p className="error__message">{error}</p>}
-            {message && <p className="message">{message}</p>}
-            <label>
-              <span>Email:</span>
-              <div className="auth__icon">
-                <MdOutlineMail />
-                <input
-                  type="email"
-                  value={email}
-                  ref={emailRef}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                />
-              </div>
+    <main className="main">
+      <div className="login-form">
+        <h2 className="heading-secondary ma-bt-lg">Log into your account</h2>
+        {error && <h2>{error}</h2>}
+        {message && <h2>{message}</h2>}
+        <form className="form form--login" onSubmit={handleUserSignIn}>
+          <div className="form-group ma-bt-md">
+            <label htmlFor="password" className="form__label">
+              Email Address
             </label>
-            <br />
-            <label>
-              <span>Password:</span>
-              <div className="password__visibility__toggler">
-                <RiLockPasswordLine />
-                <input
-                  type="password"
-                  value={password}
-                  ref={passwordRef}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="At least 6 characters"
-                />
-                <span onClick={handlePasswordVisibility}>
-                  {visible ? (
-                    <AiOutlineEye size={20} />
-                  ) : (
-                    <AiOutlineEyeInvisible size={20} />
-                  )}
-                </span>
-              </div>
+            <input
+              type="email"
+              value={email}
+              ref={emailRef}
+              onChange={(e) => setEmail(e.target.value)}
+              className="form__input"
+              required
+              placeholder="you@example.com"
+            />
+          </div>
+          <div className="form__group ma-bt-md">
+            <label htmlFor="password" className="form__label">
+              Password
             </label>
-            <br />
-            <div>
-              <Link to="/forgot-password" className="f__password">
-                <p>Forgot Password?</p>
-              </Link>
-
-              <Link to="/verify-email">Verify your email</Link>
-            </div>
-
+            <input
+              type="password"
+              className="form__input"
+              value={password}
+              ref={passwordRef}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+              minLength="8"
+            />
+          </div>
+          <div className="form__group">
             {loading ? (
-              <button type="button" disabled>
+              <button className="btn btn--green" type="button" disabled>
                 <BeatLoader loading={loading} size={10} color={'#fff'} />
               </button>
             ) : (
-              <button type="submit">Continue</button>
+              <button className="btn btn--green" type="submit">
+                Login
+              </button>
             )}
-            <div className="account">
-              Don't have an account? <Link to="/signup">Sign up</Link>
-            </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </main>
   );

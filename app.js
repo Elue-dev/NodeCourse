@@ -7,6 +7,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const cors = require('cors');
+const cookies = require('cookie-parser');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
@@ -22,6 +23,7 @@ app.set('views', path.join(__dirname, 'views'));
 
 // serving static files (creating routes for static files, eg index.html file in public folder)
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookies());
 
 app.use(cors());
 app.use(express.json({ limit: '10kb' })); // middleware: function to modify the incoming request data - we using express.json() to get the request body on the response object. (also called Body Parser)

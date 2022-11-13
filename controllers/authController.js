@@ -4,6 +4,7 @@ const User = require('../model/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const sendEmail = require('../utils/email');
+const bcrypt = require('bcryptjs');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -162,4 +163,13 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 
   // 4) log user in, send JWT
   createAndSendToken(user, 200, res);
+});
+
+exports.logout = catchAsync(async (req, res) => {
+  res.cookie('jwt', 'loggedout', {
+    expires: Number(new Date(Date.now() * 10 * 1000)),
+    httpOnly: true,
+  });
+
+  res.status(200).json({ status: 'success' });
 });

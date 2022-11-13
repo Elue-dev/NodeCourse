@@ -12,8 +12,11 @@ exports.protect = catchAsync(async (req, res, next) => {
   if (headers && headers.startsWith('Bearer')) {
     token = headers.split(' ')[1];
   } else if (req.cookies.jwt) {
+    console.log('cookie block');
     token = req.cookies.jwt;
   }
+
+  console.log('token = ', token);
 
   if (!token) {
     return next(
