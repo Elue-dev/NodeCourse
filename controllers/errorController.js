@@ -44,12 +44,12 @@ const sendErrorProd = (err, res) => {
     //programinng or other unknown error: don't leak error details
   } else {
     // 1. log error
-    // console.error('ERROR ⛔️', err);
+    console.error('ERROR ⛔️', err);
 
     // 2. send generic message
     res.status(500).json({
       status: 'error',
-      message: 'Something went wrong.',
+      message: 'Something went wrong',
     });
   }
 };

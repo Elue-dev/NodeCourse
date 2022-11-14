@@ -83,8 +83,8 @@ export default function Account() {
       if (res?.data.status === 'success') {
         showAlert('success', 'Credentials Updated Successfully!');
         dispatch(SET_ACTIVE_USER(res.data.data.user));
+        setTimeout(() => window.location.reload, 5000);
         setLoading(false);
-        setTimeout(() => window.location.reload(), 2000);
       }
     } catch (error) {
       console.log(error);
@@ -112,9 +112,12 @@ export default function Account() {
       res = await axios.patch('/api/v1/users/update-password', data);
       if (res?.data.status === 'success') {
         setAuth(initialAuthData);
-        showAlert('success', 'Password Updated Successfully!');
+        showAlert(
+          'success',
+          'Password Updated Successfully!, Redirecting to login...'
+        );
         dispatch(REMOVE_ACTIVE_USER());
-        setTimeout(() => navigate('/login'), 3000);
+        setTimeout(() => navigate('/login'), 8000);
       }
       setLoading(false);
     } catch (error) {

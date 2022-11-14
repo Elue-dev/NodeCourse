@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { ClipLoader } from 'react-spinners';
+import { HashLoader } from 'react-spinners';
 
 export default function TourDetail() {
   const [tour, setTour] = useState();
@@ -20,7 +20,7 @@ export default function TourDetail() {
   if (!tour) {
     return (
       <div className="loader">
-        <ClipLoader color={'rgba(14, 16, 30, 0.937)'} size={50} />
+        <HashLoader color={'rgba(14, 16, 30, 0.937)'} size={50} />
       </div>
     );
   }

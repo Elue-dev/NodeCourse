@@ -62,7 +62,7 @@ export default function Signup() {
 
         console.log(response.data.data.user);
         localStorage.setItem('token', JSON.stringify(response?.data.token));
-        showAlert('success', 'Login Successful!. Redirecting to Dashboard...');
+        showAlert('success', 'Signup Successful!');
         setTimeout(() => {
           navigate('/');
         }, 2000);

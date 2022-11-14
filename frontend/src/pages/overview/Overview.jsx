@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { ClipLoader } from 'react-spinners';
+import { HashLoader } from 'react-spinners';
 import './overview.scss';
 import { useDispatch } from 'react-redux';
 import { SET_TOURS } from '../../redux/tourSlice';
@@ -24,7 +24,7 @@ export default function Overview() {
   if (!tours) {
     return (
       <div className="loader">
-        <ClipLoader
+        <HashLoader
           color={'rgba(14, 16, 30, 0.937)'}
           // loading={loading}
           size={50}

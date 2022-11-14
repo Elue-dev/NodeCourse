@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../model/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-const sendEmail = require('../utils/email');
+const Email = require('../utils/email');
 const bcrypt = require('bcryptjs');
 
 const generateToken = (id) => {
@@ -53,6 +53,12 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordChangedAt,
   });
 
+  const url = `http://localhost:3000/user/${name.replace(' ', '')}/${
+    newUser._id
+  }`;
+
+  await new Email(newUser, url).sendWelcome();
+
   createAndSendToken(newUser, 201, res);
 });
 
@@ -86,19 +92,13 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   const resetToken = user.createPasswordResetToken();
   await user.save({ validateBeforeSave: false }); // because for the passwordResetExpires that we defined in our user model, we didnt save it, we just modified it.  validateBeforeSave: false  deactivates all the validators we specified in our schema
 
-  // 3) send back as an email to user.
-  const resetURL = `${req.protocol}://${req.get(
-    'host'
-  )}/api/v1/users/reset-password/${resetToken}`;
-
-  const message = `Forgot your password? Reset it using this link: ${resetURL}. \n If you didnt forget your password, please ignore this email`;
-
   try {
-    await sendEmail({
-      email: user.email, //or req.body.email
-      subject: 'Your password reset token (valid for 10 minutes)',
-      message,
-    });
+    // 3) send back as an email to user.
+    const resetURL = `${req.protocol}://${req.get(
+      'host'
+    )}/api/v1/users/reset-password/${resetToken}`;
+
+    await new Email(user, resetURL).sendPasswordReset();
 
     res.status(200).json({
       status: 'success',
