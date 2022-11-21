@@ -43,7 +43,7 @@ export default function Header() {
               to={`/user/${user.name.replace(' ', '')}/${user._id}`}
               className="nav__el"
             >
-              Hi, {user.name.split(' ')[0]} &nbsp;
+              {user.name.split(' ')[0]} &nbsp;
               {user.photo ? (
                 <img
                   src={`../../img/users/${user.photo}`}

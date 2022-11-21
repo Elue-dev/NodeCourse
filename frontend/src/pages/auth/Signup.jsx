@@ -60,7 +60,6 @@ export default function Signup() {
         dispatch(SET_ACTIVE_USER(response?.data.data.user));
         setValues(initialState);
 
-        console.log(response.data.data.user);
         localStorage.setItem('token', JSON.stringify(response?.data.token));
         showAlert('success', 'Signup Successful!');
         setTimeout(() => {
@@ -69,7 +68,6 @@ export default function Signup() {
       }
       setLoading(false);
     } catch (error) {
-      console.log(error);
       showAlert('error', error.response?.data.message);
       setLoading(false);
     }

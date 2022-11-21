@@ -7,29 +7,16 @@ import ProtectAuthRoutes from './components/protect/ProtectAuthRoutes';
 import Account from './pages/user/Account';
 import TourDetail from './pages/overview/TourDetail';
 import ProtectRoute from './components/protect/ProtectRoute';
+import Bookings from './pages/bookings/Bookings';
+import Reviews from './pages/user/reviews/Reviews';
 
 function App() {
   return (
     <BrowserRouter>
       <Header />
       <Routes>
-        <Route
-          exact
-          path="/"
-          element={
-            <ProtectRoute>
-              <Overview />
-            </ProtectRoute>
-          }
-        />
-        <Route
-          path="/:id"
-          element={
-            <ProtectRoute>
-              <TourDetail />
-            </ProtectRoute>
-          }
-        />
+        <Route exact path="/" element={<Overview />} />
+        <Route path="/:id" element={<TourDetail />} />
         <Route
           path="/login"
           element={
@@ -46,12 +33,35 @@ function App() {
             </ProtectAuthRoutes>
           }
         />
-
+        {/* <Route
+          path="/account/*"
+          element={
+            <ProtectRoute>
+              <Account />
+            </ProtectRoute>
+          }
+        /> */}
         <Route
           path="/user/:name/:id"
           element={
             <ProtectRoute>
               <Account />
+            </ProtectRoute>
+          }
+        />
+        <Route
+          path="/my-bookings"
+          element={
+            <ProtectRoute>
+              <Bookings />
+            </ProtectRoute>
+          }
+        />
+        <Route
+          path="/my-reviews"
+          element={
+            <ProtectRoute>
+              <Reviews />
             </ProtectRoute>
           }
         />

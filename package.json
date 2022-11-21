@@ -7,7 +7,7 @@
     "start": "nodemon server.js --ignore-client",
     "start:prod": "NODE_ENV=production nodemon server.js",
     "client": "npm start --prefix frontend",
-    "dev": "concurrently \"npm run start:prod\" \"npm run client\"",
+    "dev": "concurrently \"npm run start\" \"npm run client\"",
     "debug": "ndb server.js",
     "watch:js": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js",
     "build:js": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js"
@@ -45,6 +45,7 @@
     "pug": "^3.0.2",
     "sharp": "^0.31.2",
     "slugify": "^1.6.5",
+    "stripe": "^11.1.0",
     "validator": "^13.7.0",
     "xss-clean": "^0.1.1"
   },

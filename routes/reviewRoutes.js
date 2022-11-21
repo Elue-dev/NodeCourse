@@ -9,6 +9,7 @@ const {
   updateReview,
   setTourUserIds,
   getReview,
+  getUserReviews,
 } = require('../controllers/reviewController');
 
 const router = express.Router({ mergeParams: true });
@@ -17,6 +18,8 @@ const router = express.Router({ mergeParams: true });
 // so a route like this: // POST /api/v1/tours/4367trvx6rtcv6r/reviews or this: POST /reviews will all end up in line 12 below
 
 router.use(protect);
+
+router.get('/my-reviews', protect, getUserReviews);
 
 router
   .route('/')

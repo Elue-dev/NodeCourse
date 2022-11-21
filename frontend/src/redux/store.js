@@ -3,10 +3,12 @@ import storage from 'redux-persist/lib/storage';
 import { persistReducer } from 'redux-persist';
 import authReducer from './authSlice';
 import tourReducer from './tourSlice';
+import reviewReducer from './reviewSlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
   tours: tourReducer,
+  reviews: reviewReducer,
 });
 
 const persistConfig = {

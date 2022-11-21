@@ -1,21 +1,51 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { HashLoader } from 'react-spinners';
+import { Link, useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { BeatLoader, HashLoader } from 'react-spinners';
+import { getUser } from '../../redux/authSlice';
 
 export default function TourDetail() {
   const [tour, setTour] = useState();
+  const [loading, setLoading] = useState(false);
   const { id } = useParams();
+  const user = useSelector(getUser);
 
   useEffect(() => {
     const getTour = async () => {
       const singleTour = await axios.get(`api/v1/tours/${id}`);
-      console.log(singleTour);
       setTour(singleTour.data.data);
     };
 
     getTour();
   }, [id]);
+
+  const createBooking = async () => {
+    try {
+      const { data } = await axios.post(
+        `/api/v1/bookings/save-booking/${id}/${user._id}/${tour.price}`
+      );
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const bookTour = async () => {
+    setLoading(true);
+
+    try {
+      const { data } = await axios(`/api/v1/bookings/checkout-session/${id}`);
+      console.log(data);
+      if (data.status === 'success') {
+        createBooking();
+        setTimeout(() => (window.location.href = data.session.url), 3000);
+      }
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  };
 
   if (!tour) {
     return (
@@ -42,7 +72,7 @@ export default function TourDetail() {
     ];
 
     let date = new Date(x);
-    let month = date.getMonth() + 1;
+    // let month = date.getMonth() + 1;
     return (
       monthNames[date.getMonth()] +
       ' ' +
@@ -101,7 +131,7 @@ export default function TourDetail() {
             <div className="overview-box__group">
               <h2 className="heading-secondary ma-bt-lg">Your tour guides</h2>
 
-              {tour.guides.map((guide, index) => (
+              {tour?.guides.map((guide, index) => (
                 <div className="overview-box__detail" key={index}>
                   <img
                     src={`../../img/users/${guide.photo}`}
@@ -124,8 +154,10 @@ export default function TourDetail() {
 
         <div className="description-box">
           <h2 className="heading-secondary ma-bt-lg">About {tour.name} tour</h2>
-          {paragraphs.map((p) => (
-            <p className="description__text">{p}</p>
+          {paragraphs.map((p, index) => (
+            <p className="description__text" key={index}>
+              {p}
+            </p>
           ))}
         </div>
       </section>
@@ -145,14 +177,14 @@ export default function TourDetail() {
       <section className="section-reviews">
         <div className="reviews">
           {tour.reviews.map((review, index) => (
-            <div className="reviews__card">
+            <div className="reviews__card" key={index}>
               <div className="reviews__avatar">
                 <img
-                  src={`../../img/users/${review.user.photo}`}
-                  alt={review.user.name}
+                  src={`../../img/users/${review.user?.photo}`}
+                  alt={review.user?.name}
                   className="reviews__avatar-img"
                 />
-                <h6 className="reviews__user">{review.user.name}</h6>
+                <h6 className="reviews__user">{review.user?.name}</h6>
               </div>
               <p className="reviews__text">{review.review}</p>
               {/* use react star rating here */}
@@ -162,6 +194,56 @@ export default function TourDetail() {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="section-cta">
+        <div className="cta">
+          <div className="cta__img cta__img--logo">
+            <img src="/img/logo-white.png" alt="Natours logo" />
+          </div>
+          <img
+            src={`../../img/tours/${tour.images[1]}`}
+            alt="Tour"
+            className="cta__img cta__img--1"
+          />
+          <img
+            src={`../../img/tours/${tour.images[2]}`}
+            alt="Tour"
+            className="cta__img cta__img--2"
+          />
+          <div className="cta__content">
+            <h2 className="heading-secondary"> What are you waiting for?</h2>
+            <p className="cta__text">
+              {tour.duration} days. 1 adventure. Infinite memories. Make it
+              yours today!
+            </p>
+
+            {user ? (
+              <>
+                {loading ? (
+                  <button
+                    onClick={bookTour}
+                    className="btn btn--green span-all-rows"
+                    disabled
+                  >
+                    <BeatLoader loading={loading} size={10} color={'#fff'} />
+                  </button>
+                ) : (
+                  <button
+                    onClick={bookTour}
+                    className="btn btn--green span-all-rows"
+                  >
+                    Book tour now!
+                  </button>
+                )}
+              </>
+            ) : (
+              <button className="btn btn--green span-all-rows">
+                <Link to="/login">Log in to book tour!</Link>
+              </button>
+            )}
+          </div>
         </div>
       </section>
     </>

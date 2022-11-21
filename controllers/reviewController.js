@@ -1,4 +1,5 @@
 const Review = require('../model/reviewModel');
+const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
 
 exports.setTourUserIds = (req, res, next) => {
@@ -18,3 +19,16 @@ exports.getReview = factory.getOne(Review);
 exports.updateReview = factory.updateOne(Review);
 
 exports.deleteReview = factory.deleteOne(Review);
+
+exports.getUserReviews = catchAsync(async (req, res) => {
+  const reviews = await Review.find();
+
+  let usersArray = [];
+
+  const userReviews = usersArray.find((rev) => rev._id === req.user._id);
+
+  res.status(200).json({
+    status: 'success',
+    data: userReviews,
+  });
+});

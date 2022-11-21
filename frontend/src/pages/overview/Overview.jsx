@@ -13,7 +13,6 @@ export default function Overview() {
   useEffect(() => {
     const getAllTours = async () => {
       const tours = await axios.get('api/v1/tours');
-      console.log(tours.data.data);
       setTours(tours.data.data);
       dispatch(SET_TOURS(tours.data.data));
     };
@@ -86,12 +85,14 @@ export default function Overview() {
                 <div className="card__footer">
                   <p>
                     <span className="card__footer-value">{tour.price}</span>
+                    &nbsp;
                     <span className="card__footer-text">per person</span>
                   </p>
                   <p className="card__ratings">
                     <span className="card__footer-value">
                       {tour.ratingsAverage}
                     </span>
+                    &nbsp;
                     <span className="card__footer-text">
                       rating ({tour.ratingsQuantity})
                     </span>

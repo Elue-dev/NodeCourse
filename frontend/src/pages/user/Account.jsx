@@ -6,7 +6,7 @@ import {
   REMOVE_ACTIVE_USER,
   SET_ACTIVE_USER,
 } from '../../redux/authSlice';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { BeatLoader } from 'react-spinners';
 import { showAlert } from '../../utils/Alert';
 import defaultImg from '../../img/users/default.jpg';
@@ -20,6 +20,8 @@ const initialAuthData = {
 export default function Account() {
   const currentUser = useSelector(getUser);
 
+  console.log(currentUser.role);
+
   const initialUserData = {
     name: currentUser?.name,
     email: currentUser?.email,
@@ -29,6 +31,7 @@ export default function Account() {
   const [auth, setAuth] = useState(initialAuthData);
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
   const [uploadSuccess, setUploadSuccess] = useState(null);
@@ -70,6 +73,7 @@ export default function Account() {
     formData.append('photo', file);
 
     if (!user.email || !user.name) {
+      setLoading(false);
       return showAlert('error', 'Both Name and Email fields must be filled');
     }
 
@@ -87,7 +91,6 @@ export default function Account() {
         setLoading(false);
       }
     } catch (error) {
-      console.log(error);
       setLoading(false);
       showAlert('error', error.response?.data.message);
     }
@@ -96,7 +99,7 @@ export default function Account() {
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
 
-    setLoading(true);
+    setAuthLoading(true);
     setErrorAuth(null);
     setMessageAuth(null);
 
@@ -119,10 +122,9 @@ export default function Account() {
         dispatch(REMOVE_ACTIVE_USER());
         setTimeout(() => navigate('/login'), 8000);
       }
-      setLoading(false);
+      setAuthLoading(false);
     } catch (error) {
-      console.log(error);
-      setLoading(false);
+      setAuthLoading(false);
       showAlert('error', error.response?.data.message);
     }
   };
@@ -133,32 +135,35 @@ export default function Account() {
         <nav className="user-view__menu">
           <ul className="side-nav">
             <li className="side-nav--active">
-              <a>Settings</a>
+              <Link
+                to={`/user/${user.name.replace(' ', '')}/${currentUser._id}`}
+              >
+                Settings
+              </Link>
             </li>
             <li>
-              <a>My bookings</a>
+              <Link to="/my-bookings">My bookings</Link>
             </li>
             <li>
-              <a>My reviews</a>
-            </li>
-            <li>
-              <a>Billing</a>
+              <Link to="/my-reviews">Reviews</Link>
             </li>
           </ul>
-          <div className="admin-nav">
-            <h5 className="admin-nav__heading">Admin</h5>
-            <ul className="side-nav">
-              <li>
-                <a>Manage tours</a>
-              </li>
-              <li>
-                <a>Manage users</a>
-              </li>
-              <li>
-                <a>Manage reviews</a>
-              </li>
-            </ul>
-          </div>
+          {currentUser.role === 'admin' || currentUser.role === 'lead-guide' ? (
+            <div className="admin-nav">
+              <h1 className="admin-nav__heading">Admin / Lead Guides</h1>
+              <ul className="side-nav">
+                <li>
+                  <Link to="/">Manage tours</Link>
+                </li>
+                <li>
+                  <Link to="/">Manage users</Link>
+                </li>
+                <li>
+                  <Link to="/">Manage reviews</Link>
+                </li>
+              </ul>
+            </div>
+          ) : null}
         </nav>
         <div className="user-view__content">
           <div className="user-view__form-container">
@@ -296,13 +301,17 @@ export default function Account() {
                 />
               </div>
               <div className="form__group right">
-                {loading ? (
+                {authLoading ? (
                   <button
                     className="btn btn--small btn--green"
                     type="button"
                     disabled
                   >
-                    <BeatLoader loading={loading} size={10} color={'#fff'} />
+                    <BeatLoader
+                      loading={authLoading}
+                      size={10}
+                      color={'#fff'}
+                    />
                   </button>
                 ) : (
                   <button className="btn btn--small btn--green" type="submit">

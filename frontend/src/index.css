@@ -1087,7 +1087,7 @@ body {
 .admin-nav__heading {
   margin: 0 5rem 1.5rem 4rem;
   padding-bottom: 3px;
-  font-size: 1.2rem;
+  font-size: 2rem;
   text-transform: uppercase;
   color: #f2f2f2;
   border-bottom: 1px solid currentColor;
@@ -1365,4 +1365,60 @@ body {
   box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15);
   -webkit-transform: translateY(-2px);
   transform: translateY(-2px);
+}
+
+@media (max-width: 1000px) {
+  .card-container {
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 2.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 1.4rem;
+  }
+  .card-container {
+    grid-template-columns: 1fr;
+  }
+  .main {
+    padding: 8rem 0rem;
+  }
+  .footer__logo {
+    justify-self: baseline;
+  }
+  .section-description {
+    flex-direction: column;
+  }
+  .section-header {
+    height: 70vw;
+  }
+  .heading-primary {
+    font-size: 2rem;
+  }
+  .user-view__form-container {
+    padding: 0 1rem;
+  }
+  .user-view {
+    flex-direction: column;
+  }
+  .heading-secondary {
+    font-size: 1.8rem;
+  }
+  .login-form {
+    padding: 5rem 1rem;
+  }
+  .alert {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    font-size: 1.8rem;
+    width: 100%;
+    font-weight: 400;
+    text-align: center;
+    padding: 0.6rem 7.8rem;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    box-shadow: 0 2rem 4rem rgb(0 0 0 / 25%);
+  }
 }
